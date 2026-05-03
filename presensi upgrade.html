@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-Presensi | Navy Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --navy-dark: #0f172a;
+      --navy-light: #1e293b;
+      --accent: #38bdf8;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at top right, #1e293b, #0f172a);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      margin-top: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
+
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    .container {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      padding: 30px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      margin-left: 4px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
+    }
+
+    option {
+      background-color: var(--navy-dark);
+      color: white;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--primary), #4f46e5);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s transform ease;
+      margin-top: 10px;
+      box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.5);
+      filter: brightness(1.1);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .table-container {
+      margin-top: 40px;
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+      font-size: 0.9rem;
+    }
+
+    th {
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      padding: 12px;
+      text-align: left;
+    }
+
+    td {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 16px 12px;
+    }
+
+    td:first-child { border-radius: 12px 0 0 12px; }
+    td:last-child { border-radius: 0 12px 12px 0; }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .status-hadir { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+    .status-izin { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+    .status-sakit { background: rgba(56, 189, 248, 0.2); color: var(--accent); }
+    .status-alfa { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    /* Custom Message Box */
+    #msg-box {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      border-radius: 10px;
+      background: var(--navy-light);
+      border-left: 4px solid var(--accent);
+      box-shadow: 0 10px 15px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 1000;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 20px; }
+      h1 { font-size: 1.5rem; }
+      td, th { padding: 10px 8px; font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="msg-box"></div>
+
+  <div class="header">
+    <h1>📋 Digital Attendance</h1>
+    <p class="subtitle">Sistem Presensi Siswa SMK Unggulan</p>
+  </div>
+
+  <div class="container">
+    <div class="form-group">
+      <label>Nama Lengkap</label>
+      <input type="text" id="nama" placeholder="Masukkan nama sesuai absen" />
+    </div>
+    
+    <div class="form-group">
+      <label>Kelas & Jurusan</label>
+      <select id="kelas">
+        <option value="">Pilih Kelas/Jurusan</option>
+        <optgroup label="KELAS X (10)">
+          <option value="X RPL">X - Rekayasa Perangkat Lunak</option>
+          <option value="X DKV">X - Desain Komunikasi Visual</option>
+          <option value="X TL">X - Teknik Logistik</option>
+          <option value="X KI">X - Kimia Industri</option>
+          <option value="X APL">X - Analisis Pengujian Lab</option>
+        </optgroup>
+        <optgroup label="KELAS XI (11)">
+          <option value="XI RPL">XI - Rekayasa Perangkat Lunak</option>
+          <option value="XI DKV">XI - Desain Komunikasi Visual</option>
+          <option value="XI TL">XI - Teknik Logistik</option>
+          <option value="XI KI">XI - Kimia Industri</option>
+          <option value="XI APL">XI - Analisis Pengujian Lab</option>
+        </optgroup>
+        <optgroup label="KELAS XII (12)">
+          <option value="XII RPL">XII - Rekayasa Perangkat Lunak</option>
+          <option value="XII DKV">XII - Desain Komunikasi Visual</option>
+          <option value="XII TL">XII - Teknik Logistik</option>
+          <option value="XII KI">XII - Kimia Industri</option>
+          <option value="XII APL">XII - Analisis Pengujian Lab</option>
+        </optgroup>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label>Keterangan Kehadiran</label>
+      <select id="status">
+        <option value="Hadir">Hadir</option>
+        <option value="Izin">Izin</option>
+        <option value="Sakit">Sakit</option>
+        <option value="Alfa">Alfa</option>
+      </select>
+    </div>
+    
+    <button class="btn-submit" onclick="simpanPresensi()">Submit Absensi</button>
+
+    <div class="table-container">
+      <table id="tabelPresensi">
+        <thead>
+          <tr>
+            <th>Siswa</th>
+            <th>Kelas</th>
+            <th>Status</th>
+            <th>Waktu</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data rows inject here -->
+        </tbody>
+      </table>
+      <div id="no-data" class="empty-state">Belum ada data presensi hari ini.</div>
+    </div>
+  </div>
+
+  <script>
+    function showMsg(text, type = 'info') {
+      const msgBox = document.getElementById('msg-box');
+      msgBox.textContent = text;
+      msgBox.style.display = 'block';
+      msgBox.style.borderLeftColor = type === 'error' ? '#ef4444' : '#38bdf8';
+      
+      setTimeout(() => {
+        msgBox.style.display = 'none';
+      }, 3000);
+    }
+
+    function simpanPresensi() {
+      const nama = document.getElementById('nama').value.trim();
+      const kelas = document.getElementById('kelas').value;
+      const status = document.getElementById('status').value;
+      
+      const now = new Date();
+      const waktu = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+      if (!nama || !kelas) {
+        showMsg('Mohon lengkapi Nama dan Kelas ya!', 'error');
+        return;
+      }
+
+      const dataBaru = { nama, kelas, status, waktu };
+      let logs = JSON.parse(localStorage.getItem('logs_presensi')) || [];
+      
+      // Simpan ke urutan paling atas
+      logs.unshift(dataBaru);
+      
+      // Batasi hanya 50 data terakhir agar tidak berat
+      if(logs.length > 50) logs.pop();
+      
+      localStorage.setItem('logs_presensi', JSON.stringify(logs));
+
+      showMsg('Presensi berhasil disimpan! ✨');
+      tampilkanData();
+      
+      // Reset field nama saja
+      document.getElementById('nama').value = '';
+    }
+
+    function tampilkanData() {
+      const tbody = document.querySelector('#tabelPresensi tbody');
+      const emptyState = document.getElementById('no-data');
+      tbody.innerHTML = '';
+      
+      const data = JSON.parse(localStorage.getItem('logs_presensi')) || [];
+
+      if (data.length === 0) {
+        emptyState.style.display = 'block';
+        return;
+      } else {
+        emptyState.style.display = 'none';
+      }
+
+      data.forEach(item => {
+        const tr = document.createElement('tr');
+        const statusClass = `status-${item.status.toLowerCase()}`;
+        
+        tr.innerHTML = `
+          <td><div style="font-weight:600">${item.nama}</div></td>
+          <td><span style="color:var(--text-dim)">${item.kelas}</span></td>
+          <td><span class="badge ${statusClass}">${item.status}</span></td>
+          <td style="font-size:0.8rem; color:var(--text-dim)">${item.waktu}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Load data on start
+    window.onload = tampilkanData;
+  </script>
+</body>
+</html>
